@@ -18,9 +18,9 @@ class CreateDiscrepancesTable extends Migration
 
             $table->string('reference');
             $table->string('center');
-            $table->string('web_price');
-            $table->string('label_price');
-            $table->string('null_price');
+            $table->string('offer_price');
+            $table->string('offer_price_label');
+            $table->string('price_label');
 
             $table->timestamps();
         });
