@@ -23,3 +23,5 @@ Route::get('/import-discrepances', [ImportController::class, 'importDiscrepances
 Route::get('/look', [ImportController::class, 'look']);
 
 Route::get('/organice-center/{center}', [ImportController::class, 'organiceCenter']);
+
+Route::get('/create-feeds', [ImportController::class, 'createFeeds']);

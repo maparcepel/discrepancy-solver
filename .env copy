@@ -1,16 +1,16 @@
 APP_NAME=Laravel
 APP_ENV=local
-APP_KEY=
+APP_KEY=base64:9bXOMRoZR9xON6GthKdehvccG9tLNKLQh4luyKJVZ5w=
 APP_DEBUG=true
-APP_URL=http://localhost
+APP_URL=http://localhost:8888/discrepancy-solver
 
 LOG_CHANNEL=stack
 
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=laravel
-DB_USERNAME=root
+#DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=5432
+DB_DATABASE=discrepancy-solver
+DB_USERNAME=postgres
 DB_PASSWORD=
 
 BROADCAST_DRIVER=log

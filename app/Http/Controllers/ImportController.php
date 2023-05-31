@@ -5,18 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use File;
-
+use Illuminate\Support\Str;
 use App\Imports\DiscrepanceImport;
-
 use App\Models\Discrepance;
-
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class ImportController extends Controller
 {
     public function importDiscrepances ()
     {
-        Excel::import(new DiscrepanceImport, 'discrepancias.csv', 'public');
+        Excel::import(new DiscrepanceImport, 'discrepancias_Precios_ES.csv', 'public');
         
         return 'Discrepancias importadas y organizadas';
     }
@@ -110,5 +109,56 @@ class ImportController extends Controller
         }
 
         return $processedArray;
+    }
+
+    public function createFeeds ()
+    {
+        $folderName = 'public/' . Carbon::now()->toDateString() . '-prices/';
+
+        $centers = Discrepance::select('center')->where('center', '<>', 'Centro')->distinct()->pluck('center');
+        echo $centers;
+
+        foreach ($centers as $center) {
+            $discrepances = Discrepance::where('center', $center)->get();
+    
+            $discrepances = $discrepances->map(function ($discrepancy) {
+                $price = preg_replace('/\D+$/u', '', $discrepancy->price_label); //Delete text characters
+                if($price == ''){
+                    $prices = [
+                        'price_label' => $discrepancy->offer_price_label,
+                        'price' => $discrepancy->offer_price
+                    ];
+                }else{
+                    $prices = [
+                        'price_label' => $discrepancy->price_label,
+                        'offer_price_label' => $discrepancy->offer_price_label,
+                        'price' => str_replace(',', '.', $price),
+                        'offer_price' => $discrepancy->offer_price,
+                    ];
+                }
+    
+                return [
+                    'product_id' => $discrepancy->reference,
+                    'metadata' => [
+                        'country' => '011',
+                        'gourmet' => false,
+                    ],
+                    'operation' => [
+                        'operation' => 'prices',
+                    ],
+                    'prices' => $prices,
+                    'is_published' => true,
+                ];
+            });
+    
+            $feeds = $discrepances->map(function ($discrepancy) {
+                $json = json_encode($discrepancy);
+                return Str::replace('\\u20ac', '€', $json);
+            })->implode("\n");
+        
+            Storage::put($folderName . $center . '.txt', $feeds);
+        
+        }
+        return response()->json('Precios organizados y guardados');
     }
 }
